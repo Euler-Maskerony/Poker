@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <set>
+#include <boost/container/set.hpp>
 
 enum CardValue
 {
@@ -140,14 +141,25 @@ public:
     friend bool operator<(const Player& a, const Player& b);
 };
 
+class Deck
+{
+private:
+    std::multiset<Card> cards;
+public:
+    Deck();
+    Card take();
+    void take(Card card);
+};
+
 class Game
 {
 private:
-    std::vector<Player> players;
     std::vector<Card> board{5};
     int last;
     bool win;
+    Deck deck;
 public:
+    std::vector<Player> players;
     Game() = delete;
     Game(Hand host_hand, std::vector<Card> board, int players_num);
 

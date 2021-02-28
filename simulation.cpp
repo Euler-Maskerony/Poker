@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <utility>
 #include <ctime>
+#include <time.h>
 #include "simulation.h"
+#include <cassert>
 
 Card::Card()
 {
@@ -94,7 +96,8 @@ Combination::Combination(std::vector<Card> cards)
         }
         i = l;
     }
-    if(not combs[pair] and not combs[triple] and not combs[square] and cards[0] - cards[4] == 4)
+    if((not combs[pair] and not combs[triple] and not combs[square] and cards[0] - cards[4] == 4) or 
+    (cards[4] == two and cards[3] == three and cards[2] == four and cards[1] == five and cards[0] == ace))
         combs[straight] = true;
     if(combs[straight] and combs[flash])
         combs[straight_flash] = true;
@@ -109,6 +112,9 @@ Combination::Combination(std::vector<Card> cards)
         }
     if(c_type == flash)
         sort(info.begin(), info.end(), std::greater<char>());
+    else if((c_type == straight or c_type == straight_flash) and cards[0] == ace)
+        info = "ddabc";
+
 }
 
 void Combination::cut(int begin, int len, int pos, std::string& str)
@@ -148,15 +154,15 @@ void Player::process(std::vector<Card> board)
     }
     int i;
     std::vector<Card> comb{5};
-    while(next_combination(mask))
+    do
     {
         for(int i(0); i < 5; ++i)
             comb[i] = all_cards[mask[i]];
         combinations.insert(Combination(comb));
-    }
+    } while(next_combination(mask));
 }
 
-bool Player::next_combination (int mask[5]) 
+bool Player::next_combination(int mask[5]) 
     {
 	    for (int i=4; i>=0; --i)
 		    if (mask[i] < 2+i) {
@@ -194,15 +200,19 @@ bool operator<(const Player& a, const Player& b)
 
 Game::Game(Hand host_hand, std::vector<Card> board, int players_num)
 {
+    assert(players_num < 24);
     std::srand(std::time(NULL));
+    deck.take(host_hand.first);
+    deck.take(host_hand.second);
     for(Card el : board)
     {
         this->board[last] = el;
+        deck.take(el);
         ++last;
     }
     while(last < 5)
     {
-        this->board[last] = Card();
+        this->board[last] = deck.take();
         ++last;
     }
     players.push_back(Player(host_hand));
@@ -210,7 +220,7 @@ Game::Game(Hand host_hand, std::vector<Card> board, int players_num)
     players[0].host = true;
     for(int i(1); i < players_num; ++i)
     {
-        players.push_back(Player(std::make_pair(Card(),Card())));
+        players.push_back(Player(std::make_pair(deck.take(),deck.take())));
         (*players.rbegin()).process(this->board);
     }
     std::sort(players.begin(),players.end(),std::greater<Player>());
@@ -228,6 +238,8 @@ std::ostream& operator<<(std::ostream& out, const Game& g)
     for(Player p : g.players)
     {
         out << "-----------------" << '\n';
+        if(p.host)
+            out << "(You)" << '\n';
         out << "Hand: " << '|' << CardValuesOut[p.hand.first.value] << CardSuitsOut[p.hand.first.suit] << '|' << CardValuesOut[p.hand.second.value] << CardSuitsOut[p.hand.second.suit] << '|';
         out << '\n';
         out << CombinationsOut[(*p.combinations.begin()).c_type];
@@ -240,9 +252,40 @@ std::ostream& operator<<(std::ostream& out, const Game& g)
     return out;
 }
 
+Deck::Deck()
+{
+    for(int i(club); i <= spade; ++i)
+    {
+        for(int j(two); j <= ace; ++j)
+            cards.insert(Card(j,i));
+    }
+}
+
+Card Deck::take()
+{
+    std::multiset<Card>::iterator c(cards.begin());
+    std::advance(c,std::rand() % cards.size());
+    Card card = *c;
+    cards.erase(c);
+
+    return card;
+}
+
+void Deck::take(Card card)
+{
+    cards.erase(cards.find(card));
+}
+
 int main()
 {
-    Game* g = new Game(std::make_pair(Card(ace,heart),Card(jack,spade)),std::vector<Card>(),4);
-    std::cout << *g << '\n';
+    Game* g;
+    int i(0);
+    clock_t st = clock();
+    while(i < 10000)
+    {
+        g = new Game(std::make_pair(Card(),Card()),std::vector<Card>(),8);
+        ++i;
+    }
+    std::cout << 10000*CLOCKS_PER_SEC/(clock()-st) << '\n';
     return 0;
 }
