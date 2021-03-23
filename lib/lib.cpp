@@ -1,9 +1,4 @@
-#include <algorithm>
-#include <utility>
-#include <ctime>
-#include <time.h>
-#include "simulation.h"
-#include <cassert>
+#include "lib.h"
 
 Card::Card()
 {
@@ -34,6 +29,100 @@ bool operator==(const Card& a, const int b)
 int operator-(const Card& a, const Card& b)
 {
         return a.value - b.value;
+}
+
+Game::Game(Hand host_hand, std::vector<Card> board, int players_num, int BB) : BB(BB)
+{
+    assert(players_num < 24);
+    std::srand(std::time(NULL));
+    deck.take(host_hand.first);
+    deck.take(host_hand.second);
+    for(Card el : board)
+    {
+        this->board[last] = el;
+        deck.take(el);
+        ++last;
+    }
+    while(last < 5)
+    {
+        this->board[last] = deck.take();
+        ++last;
+    }
+    players.push_back(Player(host_hand));
+    players[0].host = true;
+    for(int i(1); i < players_num; ++i)
+        players.push_back(Player(std::make_pair(deck.take(),deck.take())));
+}
+
+
+Game::Game(std::vector<Player> players, std::vector<Card> board, int BB) : players(players), BB(BB)
+{
+    assert(BB > 0);
+    state = std::max(0,(int)board.size()-2);
+    for(Card el : board)
+    {
+        this->board[last] = el;
+        deck.take(el);
+        ++last;
+    }
+}
+
+void Game::playerAction(int player_num, int action, int stake)
+{
+    if(action == bet)
+        assert(stake > BB);
+    if(not players[player_num].folded)
+    {
+
+    }
+}
+
+void Game::changeGameState() 
+{ 
+    assert(state < river);
+    for(Player& p : players)
+        p.changeGameState();
+    pot_sizes.push_back(pot_size);
+    ++state;
+}
+
+std::string Game::getLog() const
+{
+    std::string res;
+    for(Card c : board)
+        res += CardValuesOut[c.value] + CardSuitsOut[c.suit] + ' ';
+    res += '\n';
+    for(Player p : players)
+        res += p.getLog() + '\n';
+    for(long long ps : pot_sizes)
+        res += std::to_string(ps) + ' ';
+    res += '\n';
+
+    return res;
+}
+
+std::ostream& operator<<(std::ostream& out, const Game& g)
+{
+    out << g.getLog();
+    return out;
+}
+
+std::vector<Win> Game::simulate()
+{
+    while(last < 5)
+    {
+        this->board[last] = deck.take();
+        ++last;
+    }
+    players[0].process(this->board);
+    for(Player &p : players)
+        p.process(this->board);
+    auto winner(std::max_element(players.begin(),players.end()));
+    std::vector<Win> res;
+    for(Player p : players)
+        res.push_back(not (p < *winner));
+
+    return res;
 }
 
 Combination::Combination(std::vector<Card> cards)
@@ -141,116 +230,6 @@ bool operator==(const Combination& a, const Combination& b)
     else { return a.info == b.info; }
 }
 
-void Player::process(std::vector<Card> board)
-{
-    all_cards[0] = hand.first;
-    all_cards[1] = hand.second;
-    int n(4);
-    int mask[n+1];
-    for(int i(2); i < 7; ++i)
-    {
-        all_cards[i] = board[i-2];
-        mask[i-2] = i-2;
-    }
-    int i;
-    std::vector<Card> comb{5};
-    do
-    {
-        for(int i(0); i < 5; ++i)
-            comb[i] = all_cards[mask[i]];
-        combinations.insert(Combination(comb));
-    } while(next_combination(mask));
-}
-
-bool Player::next_combination(int mask[5]) 
-    {
-	    for (int i=4; i>=0; --i)
-		    if (mask[i] < 2+i) {
-			    ++mask[i];
-			    for (int j=i+1; j<5; ++j)
-				    mask[j] = mask[j-1]+1;
-			    return true;
-		}
-	    return false;
-    }
-
-bool operator>(const Player& a, const Player& b)
-{
-    try
-    {
-        return *(a.combinations.begin()) > *(b.combinations.begin());
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << "Start process for all players first" << '\n';
-    }
-}
-
-bool operator<(const Player& a, const Player& b)
-{
-    try
-    {
-        return *(a.combinations.begin()) < *(b.combinations.begin());
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << "Start process for all players first" << '\n';
-    }
-}
-
-Game::Game(Hand host_hand, std::vector<Card> board, int players_num)
-{
-    assert(players_num < 24);
-    std::srand(std::time(NULL));
-    deck.take(host_hand.first);
-    deck.take(host_hand.second);
-    for(Card el : board)
-    {
-        this->board[last] = el;
-        deck.take(el);
-        ++last;
-    }
-    while(last < 5)
-    {
-        this->board[last] = deck.take();
-        ++last;
-    }
-    players.push_back(Player(host_hand));
-    players[0].process(this->board);
-    players[0].host = true;
-    for(int i(1); i < players_num; ++i)
-    {
-        players.push_back(Player(std::make_pair(deck.take(),deck.take())));
-        (*players.rbegin()).process(this->board);
-    }
-    std::sort(players.begin(),players.end(),std::greater<Player>());
-    win = players[0].host;
-}
-
-std::ostream& operator<<(std::ostream& out, const Game& g)
-{
-    out << "Board: ";
-    for(Card c : g.board)
-    {
-        out << '|' << CardValuesOut[c.value] << CardSuitsOut[c.suit] << '|';
-    }
-    out << '\n';
-    for(Player p : g.players)
-    {
-        out << "-----------------" << '\n';
-        if(p.host)
-            out << "(You)" << '\n';
-        out << "Hand: " << '|' << CardValuesOut[p.hand.first.value] << CardSuitsOut[p.hand.first.suit] << '|' << CardValuesOut[p.hand.second.value] << CardSuitsOut[p.hand.second.suit] << '|';
-        out << '\n';
-        out << CombinationsOut[(*p.combinations.begin()).c_type];
-        if(*p.combinations.begin() == *(*g.players.begin()).combinations.begin())
-            out << '\n' << "Winner";
-        out << '\n';
-    }
-    out << "-----------------" << '\n';
-
-    return out;
-}
 
 Deck::Deck()
 {
@@ -276,16 +255,38 @@ void Deck::take(Card card)
     cards.erase(cards.find(card));
 }
 
-int main()
-{
-    Game* g;
-    int i(0);
-    clock_t st = clock();
-    while(i < 10000)
-    {
-        g = new Game(std::make_pair(Card(),Card()),std::vector<Card>(),8);
-        ++i;
-    }
-    std::cout << 10000*CLOCKS_PER_SEC/(clock()-st) << '\n';
-    return 0;
-}
+std::unordered_map<int,std::string> CombinationsOut({
+    {high_card, "High Card"},
+    {pair, "Pair"},
+    {two_pairs, "Two Pairs"},
+    {triple, "Trips"},
+    {straight, "Straight"},
+    {flash, "Flash"},
+    {fullhouse, "Fullhouse"},
+    {square, "Square"},
+    {straight_flash, "Straight-Flash"},
+    {flash_royale, "Flash Royale"}
+});
+
+std::unordered_map<int,std::string> CardSuitsOut({
+    {spade, "♤"},
+    {heart, "♡"},
+    {diamond, "♢"},
+    {club, "♧"}
+});
+
+std::unordered_map<char,std::string> CardValuesOut({
+    {'a', "2"},
+    {'b', "3"},
+    {'c', "4"},
+    {'d', "5"},
+    {'e', "6"},
+    {'f', "7"},
+    {'g', "8"},
+    {'h', "9"},
+    {'i', "10"},
+    {'j', "J"},
+    {'k', "Q"},
+    {'l', "K"},
+    {'m', "A"}
+});
