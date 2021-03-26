@@ -11,12 +11,12 @@ Combination::Combination(std::vector<Card> cards)
     combs[flash] = true;
     combs[high_card] = true;
     for(int i(0); i < 5; ++i)
-        info += cards[i].value;
+        info += cards[i].getValue();
     sort(info.begin(), info.end(), std::greater<char>());
     for(int i(0); i < 5; ++i)
     {
         if(i and combs[flash])
-            if(cards[i-1].suit != cards[i].suit)
+            if(cards[i-1].getSuit() != cards[i].getSuit())
                 combs[flash] = false;
     }
     for(int i(0); i < 5; ++i)

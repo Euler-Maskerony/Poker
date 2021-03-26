@@ -63,9 +63,9 @@ bool Player::ends_with(const std::string& value, const std::string& ending)
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-Player::Player(Hand hand) : hand(hand) {}
+Player::Player(Hand hand, bool host) : hand(hand), host(host) {}
 
-Player::Player(Hand hand, long long stack) : hand(hand), stack(stack) {}
+Player::Player(Hand hand, long long stack, bool host) : hand(hand), stack(stack), host(host) {}
 
 void Player::check()
 {
@@ -102,3 +102,6 @@ void Player::changeGameState()
 }
 
 std::string Player::getLog() { return nickname + ' ' + game_log; }
+
+bool Player::isFolded() { return folded; }
+bool Player::isHost() { return host; }

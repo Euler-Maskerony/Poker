@@ -4,3 +4,5 @@
 t.cpp
 clear
 Model
+lib.a
+lib.o

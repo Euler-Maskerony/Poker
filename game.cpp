@@ -18,8 +18,7 @@ Game::Game(Hand host_hand, std::vector<Card> board, int players_num, int BB) : B
         this->board[last] = deck.take();
         ++last;
     }
-    players.push_back(Player(host_hand));
-    players[0].host = true;
+    players.push_back(Player(host_hand,true));
     for(int i(1); i < players_num; ++i)
         players.push_back(Player(std::make_pair(deck.take(),deck.take())));
 }
@@ -59,7 +58,7 @@ void Game::playerAction(int player_num, int action, int stake)
 {
     if(action == bet)
         assert(stake > BB);
-    if(not players[player_num].folded)
+    if(not players[player_num].isFolded())
     {
 
     }
@@ -78,7 +77,7 @@ std::string Game::getLog() const
 {
     std::string res;
     for(Card c : board)
-        res += CardValuesOut[c.value] + CardSuitsOut[c.suit] + ' ';
+        res += CardValuesOut[c.getValue()] + CardSuitsOut[c.getSuit()] + ' ';
     res += '\n';
     for(Player p : players)
         res += p.getLog() + '\n';

@@ -3,12 +3,16 @@
 
 class Card
 {
-public:
+private:
     char value;
     int suit;
+public:
 
-    Card(int value, int suit) : value(value), suit(suit) {};
+    Card(const int value, const int suit);
     Card();
+
+    char getValue();
+    int getSuit();
 
     friend bool operator>(const Card& a, const Card& b);
     friend bool operator<(const Card& a, const Card& b);

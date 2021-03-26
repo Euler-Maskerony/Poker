@@ -9,28 +9,31 @@
 class Player
 {
 private:
+    std::set<Combination,std::greater<Combination>> combinations;
     std::vector<Card> all_cards{7};
-    bool next_combination (int mask[5]);
+    bool host{false},folded{false};
     long long stack{-1};
+    Hand hand;
     std::string nickname;
     std::string game_log{" "};
-public:
-    std::set<Combination,std::greater<Combination>> combinations;
-    Hand hand;
-    bool host{false},folded{false};
 
+    bool next_combination (int mask[5]);
+    bool ends_with(const std::string& value, const std::string& ending);
+public:
     Player() = delete;
-    Player(Hand hand);
-    Player(Hand hand, long long stack);
+    Player(Hand hand, bool host=false);
+    Player(Hand hand, long long stack, bool host=false);
 
     void process(std::vector<Card> board);
-    bool ends_with(const std::string& value, const std::string& ending);
     void changeGameState();
     std::string getLog();
 
     void check();
     void bet(int stake);
     void fold();
+
+    bool isHost();
+    bool isFolded();
 
     friend bool operator>(const Player& a, const Player& b);
     friend bool operator<(const Player& a, const Player& b);

@@ -10,10 +10,9 @@ class Combination
 private:
     bool combs[10];  // just for convinience of checking
     void cut(int begin, int len, int pos, std::string& str);
-
-public:
     int c_type;
     std::string info{""};
+public:
 
     Combination() = delete;
 

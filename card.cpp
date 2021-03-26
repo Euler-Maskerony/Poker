@@ -4,9 +4,11 @@
 
 Card::Card()
 {
-    this->value = std::rand() % (ace-two+1) + two;
-    this->suit = std::rand() % (spade+1);
+    this->value = std::rand() % ((int)CardValue::ace-(int)CardValue::two+1) + (int)CardValue::two;
+    this->suit = std::rand() % ((int)CardSuit::spade+1);
 }
+
+Card::Card(const int value, const int suit) : value(value), suit(suit) {}
 
 bool operator>(const Card& a, const Card& b)
 {
@@ -32,3 +34,7 @@ int operator-(const Card& a, const Card& b)
 {
         return a.value - b.value;
 }
+
+int Card::getSuit() { return suit; }
+
+char Card::getValue() { return value; }
