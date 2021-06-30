@@ -2,26 +2,29 @@
 #include "headers/vars.h"
 #include "headers/deck.h"
 
-Deck::Deck()
+namespace pkr
 {
-    for(int i(club); i <= spade; ++i)
+    Deck::Deck()
     {
-        for(int j(two); j <= ace; ++j)
-            cards.insert(Card(j,i));
+        for(int i(club); i <= spade; ++i)
+        {
+            for(int j(two); j <= ace; ++j)
+                cards.insert(Card(j,i));
+        }
     }
-}
 
-Card Deck::take()
-{
-    std::multiset<Card>::iterator c(cards.begin());
-    std::advance(c,std::rand() % cards.size());
-    Card card = *c;
-    cards.erase(c);
+    Card Deck::take()
+    {
+        std::multiset<Card>::iterator c(cards.begin());
+        std::advance(c,std::rand() % cards.size());
+        Card card = *c;
+        cards.erase(c);
 
-    return card;
-}
+        return card;
+    }
 
-void Deck::take(Card card)
-{
-    cards.erase(cards.find(card));
+    void Deck::take(Card card)
+    {
+        cards.erase(cards.find(card));
+    }
 }

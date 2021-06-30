@@ -4,14 +4,17 @@
 #include <set>
 #include "card.h"
 
-class Deck
+namespace pkr
 {
-private:
-    std::multiset<Card> cards;
-public:
-    Deck();
-    Card take();
-    void take(Card card);
-};
+    class Deck
+    {
+    private:
+        std::multiset<Card> cards;
+    public:
+        Deck();
+        Card take();
+        void take(Card card);
+    };
+}
 
 #endif
