@@ -65,12 +65,15 @@ namespace pkr
         }
     }
 
-    void Game::changeGameState() 
+    void Game::changeGameState(std::vector<pkr::Card> new_cards,long long pot_size=0) 
     { 
         assert(state < river);
         for(Player& p : players)
             p.changeGameState();
-        pot_sizes.push_back(pot_size);
+        if(pot_size == 0)
+            this->pot_sizes.push_back(this->pot_size);
+        else
+            this->pot_sizes.push_back(pot_size);
         ++state;
     }
 

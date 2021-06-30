@@ -6,3 +6,4 @@ clear
 Model
 lib.a
 lib.o
+main*

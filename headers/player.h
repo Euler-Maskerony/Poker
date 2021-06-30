@@ -23,8 +23,8 @@ namespace pkr
         bool ends_with(const std::string& value, const std::string& ending);
     public:
         Player() = delete;
-        Player(Hand hand, bool host=false);
-        Player(Hand hand, long long stack, bool host=false);
+        explicit Player(Hand hand, bool host=false);
+        explicit Player(Hand hand, long long stack, bool host=false);
 
         void process(std::vector<Card> board);
         void changeGameState();
