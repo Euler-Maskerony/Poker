@@ -23,7 +23,7 @@ namespace pkr
         long long pot_size;
         int last,BB{0},state{pflop};
         Deck deck;
-        std::vector<Player> players;
+        std::vector<Player> players;  // Players list from SB to BU
         std::vector<long long> pot_sizes;
     public:
         Game() = delete;

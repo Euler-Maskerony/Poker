@@ -81,10 +81,13 @@ namespace pkr
 
     void Player::fold()
     {
-        if(not *game_log.rbegin() == ' ')
-            game_log += "/";
-        game_log += "f";
-        folded = true;
+        if(*game_log.rbegin() != 'f')
+        {
+            if(not *game_log.rbegin() == ' ')
+                game_log += "/";
+            game_log += "f";
+            folded = true;
+        }
     }
 
     void Player::bet(int stake)
