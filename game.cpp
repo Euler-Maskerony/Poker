@@ -61,7 +61,24 @@ namespace pkr
             assert(stake > BB);
         if(not players[player_num].isFolded())
         {
-
+            switch(action)
+            {
+                case bet:
+                    players[player_num].bet(stake);
+                    for(int i(player_num-1); i >= 0; --i)
+                    {
+                        std::string log(players[player_num].getLog());
+                        if(*players[player_num].getLog().rbegin() == ' ')
+                            players[i].check();
+                    }
+                    break;
+                case fold:
+                    players[player_num].fold();
+                    break;
+                case check:
+                    players[player_num].check();
+                    break;
+            }
         }
     }
 
