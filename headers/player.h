@@ -11,6 +11,7 @@ namespace pkr
     class Player
     {
     private:
+        int state{0};
         std::set<Combination,std::greater<Combination>> combinations;
         std::vector<Card> all_cards{7};
         bool host{false},folded{false};

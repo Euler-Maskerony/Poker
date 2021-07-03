@@ -21,7 +21,7 @@ namespace pkr
     private:
         int last;
         
-        std::vector<Card> board{5};  // Current board state
+        std::vector<Card> board;  // Current board state
         long long pot_size{0};  // Current pot size (sum of all bets)
         int BB{0},state{pflop};  // BB value and current game state
         Deck deck;  // Deck of cards

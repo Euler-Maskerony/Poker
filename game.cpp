@@ -65,6 +65,7 @@ namespace pkr
             {
                 case bet:
                     players[player_num].bet(stake);
+                    this->pot_size += stake;
                     for(int i(player_num-1); i >= 0; --i)
                     {
                         std::string log(players[player_num].getLog());
@@ -82,21 +83,45 @@ namespace pkr
         }
     }
 
-    void Game::changeGameState(std::vector<pkr::Card> new_cards,long long pot_size=0) 
+    void Game::changeGameState(std::vector<pkr::Card> new_cards,long long pot_size) 
     { 
-        assert(state < river);
-        for(Player& p : players)
+        ++state;
+        assert(state <= river and "River is the last state");
+        assert(((state == flop and (new_cards.size() == 3 or new_cards.size() == 0)) or
+        (state == turn and (new_cards.size() == 1 or new_cards.size() == 0)) or
+        (state == river and (new_cards.size() == 1 or new_cards.size() == 0))) and "Invalid card size for this state");
+
+        for(Player& p : players)  // Call players
             p.changeGameState();
-        if(pot_size == 0)
+    
+        if(pot_size == 0)  // Change pot size
             this->pot_sizes.push_back(this->pot_size);
         else
+        {
             this->pot_sizes.push_back(pot_size);
-        ++state;
+            this->pot_size = pot_size;
+        }
+
+        if(new_cards.size() == 0)  // Push new cards to the board
+        {
+            this->board.push_back(pkr::Card());
+            if(state == flop)
+            {
+                this->board.push_back(pkr::Card());
+                this->board.push_back(pkr::Card());
+            }
+        }
+        else
+        {
+            for(pkr::Card card : new_cards)
+                this->board.push_back(card);
+        }
     }
 
     std::string Game::getLog() const
     {
         std::string res;
+        res += "Board: ";
         for(Card c : board)
             res += CardValuesOut[c.getValue()] + CardSuitsOut[c.getSuit()] + ' ';
         res += '\n';
