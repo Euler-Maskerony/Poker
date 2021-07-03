@@ -14,6 +14,8 @@ namespace pkr
         int state{0};
         std::set<Combination,std::greater<Combination>> combinations;
         std::vector<Card> all_cards{7};
+        long long last_bet;
+
         bool host{false},folded{false};
         long long stack{-1};
         Hand hand;
@@ -32,11 +34,12 @@ namespace pkr
         std::string getLog();
 
         void check();
-        void bet(int stake);
+        void bet(long long stake);
         void fold();
 
         bool isHost();
         bool isFolded();
+        long long getLastBet();
 
         friend bool operator>(const Player& a, const Player& b);
         friend bool operator<(const Player& a, const Player& b);

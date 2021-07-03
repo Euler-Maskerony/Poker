@@ -27,6 +27,8 @@ namespace pkr
         Deck deck;  // Deck of cards
         std::vector<Player> players;  // All players
         std::vector<long long> pot_sizes;  // History of pot sizes at the end of each state
+
+        void betsEqulization();
     public:
         Game() = delete;
         Game(Hand host_hand, std::vector<Card> board, int players_num, int BB=-1);

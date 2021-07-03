@@ -83,6 +83,21 @@ namespace pkr
         }
     }
 
+    void Game::betsEqulization()
+    {
+        long long max_bet(0);
+        for(Player p : this->players)
+        {
+            if(p.getLastBet() > max_bet)
+                max_bet = p.getLastBet();
+        }
+        for(Player& p : this->players)
+        {
+            if(p.getLastBet() < max_bet and not p.isFolded())
+                p.bet(max_bet);
+        }
+    }
+
     void Game::changeGameState(std::vector<pkr::Card> new_cards,long long pot_size) 
     { 
         ++state;
@@ -90,6 +105,8 @@ namespace pkr
         assert(((state == flop and (new_cards.size() == 3 or new_cards.size() == 0)) or
         (state == turn and (new_cards.size() == 1 or new_cards.size() == 0)) or
         (state == river and (new_cards.size() == 1 or new_cards.size() == 0))) and "Invalid card size for this state");
+
+        
 
         for(Player& p : players)  // Call players
             p.changeGameState();

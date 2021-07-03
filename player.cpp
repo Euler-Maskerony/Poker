@@ -71,42 +71,46 @@ namespace pkr
 
     void Player::check()
     {
-        if(*game_log.rbegin() != 'c')
+        if(*this->game_log.rbegin() != 'c')
         {
-            if(not *game_log.rbegin() == ' ')
-                game_log += "/";
-            game_log += "c";
+            if(not *this->game_log.rbegin() == ' ')
+                this->game_log += "/";
+            this->game_log += "c";
         }
     }
 
     void Player::fold()
     {
-        if(*game_log.rbegin() != 'f')
+        if(*this->game_log.rbegin() != 'f' and not this->folded)
         {
-            if(not *game_log.rbegin() == ' ')
-                game_log += "/";
-            game_log += "f";
-            folded = true;
+            if(not *this->game_log.rbegin() == ' ')
+                this->game_log += "/";
+            this->game_log += "f";
+            this->folded = true;
         }
     }
 
-    void Player::bet(int stake)
+    void Player::bet(long long stake)
     {
-        if(not ends_with(game_log,"b("+std::to_string(stake)+")"))
+        last_bet = stake;
+        if(not ends_with(this->game_log,"b("+std::to_string(stake)+")"))
         {
-            if(not *game_log.rbegin() == ' ')
-                game_log += "/";
-            game_log += "b(" + std::to_string(stake) + ")";
+            if(not *this->game_log.rbegin() == ' ')
+                this->game_log += "/";
+            this->game_log += "b(" + std::to_string(stake) + ")";
             this->stack -= stake;
         }
     }
 
     void Player::changeGameState()
     {
-        game_log += ' ';
+        last_bet = 0;
+        this->game_log += ' ';
     }
 
     std::string Player::getLog() { return nickname + ' ' + game_log; }
+
+    long long Player::getLastBet() { return last_bet; }
 
     bool Player::isFolded() { return folded; }
     bool Player::isHost() { return host; }
