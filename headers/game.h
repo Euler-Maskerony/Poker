@@ -29,8 +29,8 @@ namespace pkr
         std::vector<long long> pot_sizes;  // History of pot sizes at the end of each state
     public:
         Game() = delete;
-        Game(Hand host_hand, std::vector<Card> board, int players_num, int BB);
-        Game(std::vector<Player> players, std::vector<Card> board, int BB);  // first player must be SB, second BB and so on
+        Game(Hand host_hand, std::vector<Card> board, int players_num, int BB=-1);
+        Game(std::vector<Player> players, std::vector<Card> board, int BB=-1);  // first player must be SB, second BB and so on
 
         std::vector<Win> simulate();
         void playerAction(int player_num, int action, int stake=0);

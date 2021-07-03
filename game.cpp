@@ -45,7 +45,7 @@ namespace pkr
 
     Game::Game(std::vector<Player> players, std::vector<Card> board, int BB) : players(players), BB(BB)
     {
-        assert(BB > 0);
+        assert(board.size() <= 5 and board.size() != 2 and board.size() != 1);
         state = std::max(0,(int)board.size()-2);
         for(Card el : board)
         {
@@ -58,7 +58,7 @@ namespace pkr
     void Game::playerAction(int player_num, int action, int stake)
     {
         if(action == bet)
-            assert(stake > BB);
+            assert(stake > BB or BB < 0);
         if(not players[player_num].isFolded())
         {
             switch(action)
