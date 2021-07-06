@@ -151,6 +151,8 @@ namespace pkr
         return res;
     }
 
+    int Game::getState() const { return this->state; }
+
     std::ostream& operator<<(std::ostream& out, const Game& g)
     {
         out << g.getLog();

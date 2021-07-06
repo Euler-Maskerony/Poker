@@ -38,6 +38,7 @@ namespace pkr
         void playerAction(int player_num, int action, int stake=0);
         void changeGameState(std::vector<pkr::Card> new_cards,long long pot_size=0);
         std::string getLog() const;
+        int getState() const;
 
         friend std::ostream& operator<<(std::ostream& out, const Game& g);
     };
