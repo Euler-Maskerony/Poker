@@ -93,6 +93,7 @@ namespace pkr
     void Player::bet(long long stake)
     {
         last_bet = stake;
+
         if(not ends_with(this->game_log,"b("+std::to_string(stake)+")"))
         {
             if(not *this->game_log.rbegin() == ' ')
@@ -104,8 +105,11 @@ namespace pkr
 
     void Player::changeGameState()
     {
-        last_bet = 0;
-        this->game_log += ' ';
+        if(not this->folded)
+        {
+            last_bet = 0;
+            this->game_log += ' ';
+        }
     }
 
     std::string Player::getLog() { return nickname + ' ' + game_log; }
