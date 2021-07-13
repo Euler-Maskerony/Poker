@@ -73,7 +73,7 @@ namespace pkr
     {
         if(*this->game_log.rbegin() != 'c')
         {
-            if(not *this->game_log.rbegin() == ' ')
+            if(*this->game_log.rbegin() != ' ')
                 this->game_log += "/";
             this->game_log += "c";
         }
@@ -83,7 +83,8 @@ namespace pkr
     {
         if(*this->game_log.rbegin() != 'f' and not this->folded)
         {
-            if(not *this->game_log.rbegin() == ' ')
+            this->last_bet = 0;
+            if(*this->game_log.rbegin() != ' ')
                 this->game_log += "/";
             this->game_log += "f";
             this->folded = true;
@@ -96,7 +97,7 @@ namespace pkr
 
         if(not ends_with(this->game_log,"b("+std::to_string(stake)+")"))
         {
-            if(not *this->game_log.rbegin() == ' ')
+            if(*this->game_log.rbegin() != ' ')
                 this->game_log += "/";
             this->game_log += "b(" + std::to_string(stake) + ")";
             this->stack -= stake;

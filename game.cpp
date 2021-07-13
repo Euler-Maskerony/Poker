@@ -88,12 +88,14 @@ namespace pkr
         long long max_bet(0);
         for(Player p : this->players)
         {
-            if(p.getLastBet() > max_bet)
+            if(p.getLastBet() > max_bet and not p.isFolded())
                 max_bet = p.getLastBet();
         }
         for(Player& p : this->players)
         {
-            if(p.getLastBet() < max_bet and not p.isFolded())
+            if(max_bet == 0 and not p.isFolded())
+                p.check();
+            else if(p.getLastBet() < max_bet and not p.isFolded())
                 p.bet(max_bet);
         }
     }
@@ -106,7 +108,7 @@ namespace pkr
         (state == turn and (new_cards.size() == 1 or new_cards.size() == 0)) or
         (state == river and (new_cards.size() == 1 or new_cards.size() == 0))) and "Invalid card size for this state");
 
-        
+        betsEqulization();
 
         for(Player& p : players)  // Call players
             p.changeGameState();
