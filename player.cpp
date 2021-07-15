@@ -65,6 +65,8 @@ namespace pkr
         return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
     }
 
+    Player::Player() : host(false) { this->fold(); }
+
     Player::Player(Hand hand, bool host) : hand(hand), host(host) {}
 
     Player::Player(Hand hand, long long stack, bool host) : hand(hand), stack(stack), host(host) {}
