@@ -4,64 +4,61 @@ namespace pkr
 {
     void Player::process(std::vector<Card> board)
     {
-        all_cards[0] = hand.first;
-        all_cards[1] = hand.second;
-        int n(4);
-        int mask[n+1];
-        for(int i(2); i < 7; ++i)
-        {
-            all_cards[i] = board[i-2];
-            mask[i-2] = i-2;
-        }
-        int i;
+        // Can't estimate combination of folded player
+        if(this->folded)
+            return;
+        // Fill container with hand and board cards
+        std::vector<Card> all_cards(board.size()+2);
+        all_cards[0] = this->hand.first;
+        all_cards[1] = this->hand.second;
+        std::copy(board.begin(),board.end(),all_cards.begin()+2);
+        // Create mask for permutations
+        int mask[all_cards.size()];
+        std::iota(mask,mask+all_cards.size(),0);
+        // Find max combinations over all posible
         std::vector<Card> comb{5};
+        std::set<Combination,std::greater<Combination>> combinations;
         do
         {
             for(int i(0); i < 5; ++i)
                 comb[i] = all_cards[mask[i]];
             combinations.insert(Combination(comb));
-        } while(next_combination(mask));
-    }
-
-    bool Player::next_combination(int mask[5]) 
-        {
-            for (int i=4; i>=0; --i)
-                if (mask[i] < 2+i) {
-                    ++mask[i];
-                    for (int j=i+1; j<5; ++j)
-                        mask[j] = mask[j-1]+1;
-                    return true;
-            }
-            return false;
         }
+        while(std::next_permutation(mask,mask+all_cards.size()));
+
+        this->combination = new Combination(*combinations.begin());
+    }
 
     bool operator>(const Player& a, const Player& b)
     {
-        try
-        {
-            return *(a.combinations.begin()) > *(b.combinations.begin());
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << "Start process for all players first" << '\n';
-        }
+        if(a.combination == nullptr or b.combination == nullptr)
+            throw std::invalid_argument("Start process for all players first");
+        // Folded players are always smaller
+        if(a.folded)
+            return false;
+        else if(b.folded)
+            return true;
+        else
+            return *a.combination > *b.combination;
     }
 
     bool operator<(const Player& a, const Player& b)
     {
-        try
-        {
-            return *(a.combinations.begin()) < *(b.combinations.begin());
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << "Start process for all players first" << '\n';
-        }
+        if(a.combination == nullptr or b.combination == nullptr)
+            throw std::invalid_argument("Start process for all players first");
+        // Folded players are always smaller
+        if(a.folded)
+            return true;
+        else if(b.folded)
+            return false;
+        else
+            return *a.combination < *b.combination;
     }
 
     bool Player::ends_with(const std::string& value, const std::string& ending)
     {
-        if (ending.size() > value.size()) return false;
+        if (ending.size() > value.size())
+            return false;
         return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
     }
 
@@ -71,7 +68,7 @@ namespace pkr
 
     Player::Player(Hand hand, long long stack, bool host) : hand(hand), stack(stack), host(host) {}
 
-    void Player::check()
+    void Player::check() noexcept
     {
         if(*this->game_log.rbegin() != 'c')
         {
@@ -81,7 +78,7 @@ namespace pkr
         }
     }
 
-    void Player::fold()
+    void Player::fold() noexcept
     {
         if(*this->game_log.rbegin() != 'f' and not this->folded)
         {
@@ -93,7 +90,7 @@ namespace pkr
         }
     }
 
-    void Player::bet(long long stake)
+    void Player::bet(long long stake) noexcept
     {
         last_bet = stake;
 
@@ -106,7 +103,9 @@ namespace pkr
         }
     }
 
-    void Player::changeGameState()
+    void Player::skip() noexcept { this->game_log += "?"; }
+
+    void Player::changeGameState() noexcept
     {
         if(not this->folded)
         {
@@ -115,10 +114,9 @@ namespace pkr
         }
     }
 
-    std::string Player::getLog() { return nickname + ' ' + game_log; }
+    std::string Player::getLog() const noexcept { return nickname + ' ' + game_log; }
+    long long Player::getLastBet() const noexcept{ return last_bet; }
 
-    long long Player::getLastBet() { return last_bet; }
-
-    bool Player::isFolded() { return folded; }
-    bool Player::isHost() { return host; }
+    bool Player::isFolded() const noexcept { return folded; }
+    bool Player::isHost() const noexcept { return host; }
 }

@@ -1,11 +1,10 @@
-#include <cstdlib>
-#include "headers/vars.h"
 #include "headers/deck.h"
 
 namespace pkr
 {
     Deck::Deck()
     {
+        std::srand(std::time(NULL));
         for(int i(club); i <= spade; ++i)
         {
             for(int j(two); j <= ace; ++j)
@@ -25,6 +24,9 @@ namespace pkr
 
     void Deck::take(Card card)
     {
-        cards.erase(cards.find(card));
+        if(auto c = cards.find(card) != cards.end())
+            cards.erase(cards.find(card));
+        else
+            throw std::invalid_argument("Invalid card");
     }
 }

@@ -3,6 +3,8 @@
 
 #include <set>
 #include <vector>
+#include <algorithm>
+#include <numeric>
 #include "combination.h"
 #include "vars.h"
 
@@ -12,17 +14,15 @@ namespace pkr
     {
     private:
         int state{0};
-        std::set<Combination,std::greater<Combination>> combinations;
-        std::vector<Card> all_cards{7};
+        Combination* combination{nullptr};
         long long last_bet;
 
-        bool host{false},folded{false};
+        bool host,folded{false};
         long long stack{-1};
         Hand hand;
         std::string nickname;
         std::string game_log{" "};
 
-        bool next_combination (int mask[5]);
         bool ends_with(const std::string& value, const std::string& ending);
     public:
         Player();
@@ -30,16 +30,17 @@ namespace pkr
         explicit Player(Hand hand, long long stack, bool host=false);
 
         void process(std::vector<Card> board);
-        void changeGameState();
-        std::string getLog();
+        void changeGameState() noexcept;
+        std::string getLog() const noexcept;
 
-        void check();
-        void bet(long long stake);
-        void fold();
+        void check() noexcept;
+        void bet(long long stake) noexcept;
+        void fold() noexcept;
+        void skip() noexcept;
 
-        bool isHost();
-        bool isFolded();
-        long long getLastBet();
+        bool isHost() const noexcept;
+        bool isFolded() const noexcept;
+        long long getLastBet() const noexcept;
 
         friend bool operator>(const Player& a, const Player& b);
         friend bool operator<(const Player& a, const Player& b);

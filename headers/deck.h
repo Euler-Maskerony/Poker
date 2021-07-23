@@ -2,7 +2,10 @@
 #define DECK
 
 #include <set>
+#include <cstdlib>
+#include <ctime>
 #include "card.h"
+#include "vars.h"
 
 namespace pkr
 {
